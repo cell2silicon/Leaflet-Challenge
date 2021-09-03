@@ -74,3 +74,61 @@ d3.json(tectonicUrl).then(function(plateData){
     collapsed: false
   }).addTo(myMap);
 
+// Getting data from Earthquake URL to get magnitude
+d3.json(earthquakeUrl, function(earthData) {
+  function magSize(magnitude) {
+    return magnitude * 3; 
+  }
+
+  // Function to set style for marker
+  function styleInfo(features) {
+    return {
+      opacity: 1,
+      fillOpacity: 1,
+      fillColor: chooseColor(features.geometry.coordinates[2]),
+      color: "#000000",
+      radius: magSize(features.properties.mag),
+      stroke: true,
+      weight: 0.5
+    };
+  }  
+  // Function for color of marker
+  function chooseColor(depth) {
+    switch (true) {
+      case depth > 90:
+            return "#581845";
+        case depth > 70:
+            return "#900C3F";
+        case depth > 50:
+            return "#C70039";
+        case depth > 30:
+            return "#FF5733";
+        case depth > 10:
+            return "#FFC300";
+        default:
+            return "#DAF7A6";
+    }
+  }
+
+  // Create GeoJSON layer for earthquake data
+  L.geoJSON(earthData, {
+    pointToLayer: function (feature, latlng) {
+      return L.circleMarker(latlng);
+    },
+    style: styleInfo,
+
+    // Popup describing the place and time of Earthquake
+    onEachFeature: function(feature, layer) {
+      layer.bindPopup(
+        "Location: "
+        + features.properties.place
+        + "<br> Depth: "
+        + features.geometry.coordinates[2]
+        + "<br> Magnitude: "
+        + features.properties.mag
+        + "<br> Time: "
+        + Date(features.properties.time)
+      );
+    }
+  }).addTo
+});
